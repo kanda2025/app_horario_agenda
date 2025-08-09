@@ -1,0 +1,154 @@
+body { font-family: sans-serif; background-color: #f4f4f9; color: #333; margin: 0; padding: 20px; }
+.container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; padding-bottom: 10px; margin-bottom: 20px; }
+input[type="email"], input[type="password"], input[type="text"], input[type="datetime-local"] {
+    width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;
+}
+button {
+    background-color: #5c67f2; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;
+}
+button:hover { background-color: #4a54c4; }
+.error { color: red; font-size: 0.9em; }
+#eventList { margin-top: 20px; }
+.event-item {
+    background: #eef; padding: 15px; border-radius: 4px; margin-bottom: 10px;
+    border-left: 5px solid #5c67f2;
+}
+.event-item h3 { margin: 0 0 5px 0; }
+.event-item p { margin: 0; color: #666; }
+/* --- NUEVOS ESTILOS PARA EDITAR/ELIMINAR --- */
+.event-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.event-actions button {
+    margin-left: 10px;
+    padding: 5px 10px;
+    font-size: 14px;
+}
+
+.edit-btn {
+    background-color: #ffc107; /* Amarillo */
+}
+.edit-btn:hover {
+    background-color: #e0a800;
+}
+
+.delete-btn {
+    background-color: #dc3545; /* Rojo */
+}
+.delete-btn:hover {
+    background-color: #c82333;
+}
+/* --- NUEVOS ESTILOS PARA EL HORARIO --- */
+hr {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 40px 0;
+}
+
+.schedule-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.day-column {
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #eee;
+}
+
+.day-column h4 {
+    margin: 0 0 10px 0;
+    text-align: center;
+    border-bottom: 2px solid #5c67f2;
+    padding-bottom: 5px;
+}
+
+.no-classes {
+    color: #999;
+    font-style: italic;
+    text-align: center;
+    font-size: 0.9em;
+}
+
+.class-item {
+    background: white;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.class-item strong {
+    font-size: 1.1em;
+    margin-bottom: 5px;
+}
+
+.class-item span {
+    font-size: 0.9em;
+    color: #555;
+}
+
+.delete-class-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: none;
+    border: none;
+    color: #aaa;
+    font-size: 20px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0 5px;
+}
+
+.delete-class-btn:hover {
+    color: #dc3545;
+}
+
+.time-inputs {
+    display: flex;
+    gap: 10px;
+}
+
+.time-inputs input {
+    flex: 1;
+}
+
+select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    background-color: white;
+}
+/* --- ESTILOS PARA ACCIONES DE CLASES --- */
+.class-item {
+    flex-direction: row; /* Cambia la dirección para poner info y botones lado a lado */
+    justify-content: space-between;
+    align-items: center;
+}
+.class-info {
+    display: flex;
+    flex-direction: column;
+}
+.class-actions button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: #999;
+}
+.class-actions .edit-class-btn:hover { color: #5c67f2; }
+.class-actions .delete-class-btn:hover { color: #dc3545; }

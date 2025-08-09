@@ -1,0 +1,9 @@
+# Ignorar la carpeta de dependencias de Node.js
+node_modules/
+
+# Ignorar el archivo de variables de entorno (secretos)
+.env
+
+# Archivos de sistema operativo
+.DS_Store
+Thumbs.db
