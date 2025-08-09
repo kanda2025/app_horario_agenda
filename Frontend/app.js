@@ -1,6 +1,6 @@
 // frontend/app.js - VERSIÓN ESTABLE (CRUD Completo + Notificaciones v1)
 
-const API_URL = 'http://localhost:3000/api';
+const API_URL = 'https://app-horario-agenda.onrender.com/api';
 let currentlyEditingEventId = null; 
 let currentlyEditingClassId = null;
 
