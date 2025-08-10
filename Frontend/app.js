@@ -1,4 +1,4 @@
-// frontend/app.js - VERSIÓN FINAL CORREGIDA (Auto-Registro + Arreglo de Zona Horaria)
+// frontend/app.js - VERSIÓN FINAL CORREGIDA (Auto-Registro + Arreglo de Zona Horaria v2)
 
 const API_URL = 'https://app-horario-agenda.onrender.com/api';
 let currentlyEditingEventId = null; 
@@ -112,7 +112,13 @@ async function loadUserEvents() {
             events.forEach(event => {
                 const eventEl = document.createElement('div');
                 eventEl.className = 'event-item';
-                const eventDate = new Date(event.fecha_hora_inicio);
+                
+                // ===================================================
+                // CORRECCIÓN FINAL DE ZONA HORARIA PARA MOSTRAR
+                // ===================================================
+                // Le decimos a new Date que interprete la fecha como UTC para que no la ajuste
+                const eventDate = new Date(event.fecha_hora_inicio.replace('Z', '')); 
+
                 eventEl.innerHTML = `
                     <div class="event-info"><h3>${event.titulo}</h3><p>${eventDate.toLocaleString('es-ES', { dateStyle: 'long', timeStyle: 'short' })}</p></div>
                     <div class="event-actions"><button class="edit-btn" data-id="${event.id}">Editar</button><button class="delete-btn" data-id="${event.id}">Eliminar</button></div>`;
@@ -179,6 +185,7 @@ function resetEventForm() {
 
 // --- LÓGICA DE HORARIO ---
 async function loadUserSchedule() {
+    // ... (El resto del código no cambia)
     const token = localStorage.getItem('token');
     const scheduleGrid = document.getElementById('scheduleGrid');
     scheduleGrid.innerHTML = 'Cargando horario...';
@@ -300,7 +307,7 @@ async function sendSubscriptionToBackend(subscription) {
         body: JSON.stringify(subscription)
     });
 }
-const VAPID_PUBLIC_KEY = "BFUPPUWy929Q6kh2zeEBj5n77tutwozx3cuXm03XzhbjwLpTywhyVmuaCZ9HoOU7Gpglf24DKfQblfSOLLkfoKE"; // <-- ¡¡¡NO OLVIDES REEMPLAZAR ESTO!!!
+const VAPID_PUBLIC_KEY = "BFUPPUWy929Q6kh2zeEBj5n77tutwozx3cuXm03XzhbjwLpTywhyVmuaCZ9HoOU7Gpglf24DKfQblfSOLLkfoKE";
 function urlBase64ToUint8Array(base64String) {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
     const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
