@@ -1,4 +1,4 @@
-// frontend/app.js - VERSIÓN FINAL CON DATE-FNS PARA MANEJAR FECHAS
+// frontend/app.js - VERSIÓN FINAL CON DATE-FNS v2
 
 const API_URL = 'https://app-horario-agenda.onrender.com/api';
 let currentlyEditingEventId = null; 
@@ -114,8 +114,8 @@ async function loadUserEvents() {
                 const eventEl = document.createElement('div');
                 eventEl.className = 'event-item';
                 
-                // LÓGICA DE FECHAS CON DATE-FNS
-                const eventDate = dateFns.parse(event.fecha_hora_inicio);
+                // LÓGICA DE FECHAS CON DATE-FNS v2
+                const eventDate = dateFns.parseISO(event.fecha_hora_inicio);
                 const formattedDate = dateFns.format(eventDate, "d 'de' MMMM 'de' yyyy, HH:mm", { locale: dateFns.locale.es });
 
                 eventEl.innerHTML = `
@@ -124,7 +124,10 @@ async function loadUserEvents() {
                 eventListDiv.appendChild(eventEl);
             });
         }
-    } catch (error) { eventListDiv.innerHTML = '<p>No se pudieron cargar los eventos.</p>'; }
+    } catch (error) { 
+        console.error("Error en loadUserEvents:", error);
+        eventListDiv.innerHTML = '<p>No se pudieron cargar los eventos.</p>'; 
+    }
 }
 
 async function handleEventFormSubmit(event) {
@@ -167,9 +170,10 @@ function handleEditEvent(eventId) {
 
     document.getElementById('eventTitle').value = eventToEdit.titulo;
     
-    // LÓGICA DE FECHAS CON DATE-FNS
-    const eventDate = dateFns.parse(eventToEdit.fecha_hora_inicio);
-    const formattedForInput = dateFns.format(eventDate, "YYYY-MM-DDTHH:mm");
+    // LÓGICA DE FECHAS CON DATE-FNS v2
+    const eventDate = dateFns.parseISO(eventToEdit.fecha_hora_inicio);
+    const formattedForInput = dateFns.format(eventDate, "yyyy-MM-dd'T'HH:mm");
+    
     document.getElementById('eventDateTime').value = formattedForInput;
 
     document.querySelector('#eventForm button').textContent = 'Actualizar Evento';
