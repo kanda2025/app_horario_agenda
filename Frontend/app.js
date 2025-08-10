@@ -1,4 +1,4 @@
-// frontend/app.js - VERSIÓN FINAL CON DATE-FNS v2
+// frontend/app.js - VERSIÓN FINAL CON DATE-FNS v2 CORRECTA
 
 const API_URL = 'https://app-horario-agenda.onrender.com/api';
 let currentlyEditingEventId = null; 
@@ -114,7 +114,9 @@ async function loadUserEvents() {
                 const eventEl = document.createElement('div');
                 eventEl.className = 'event-item';
                 
-                // LÓGICA DE FECHAS CON DATE-FNS v2
+                // ===================================================
+                // CORRECCIÓN FINAL USANDO parseISO
+                // ===================================================
                 const eventDate = dateFns.parseISO(event.fecha_hora_inicio);
                 const formattedDate = dateFns.format(eventDate, "d 'de' MMMM 'de' yyyy, HH:mm", { locale: dateFns.locale.es });
 
@@ -170,7 +172,9 @@ function handleEditEvent(eventId) {
 
     document.getElementById('eventTitle').value = eventToEdit.titulo;
     
-    // LÓGICA DE FECHAS CON DATE-FNS v2
+    // ===================================================
+    // CORRECCIÓN FINAL USANDO parseISO
+    // ===================================================
     const eventDate = dateFns.parseISO(eventToEdit.fecha_hora_inicio);
     const formattedForInput = dateFns.format(eventDate, "yyyy-MM-dd'T'HH:mm");
     
