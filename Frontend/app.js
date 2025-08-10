@@ -1,4 +1,4 @@
-// frontend/app.js - VERSIÓN FINAL CORREGIDA (Auto-Registro + Arreglo de Zona Horaria v2)
+// frontend/app.js - VERSIÓN FINAL CON CORRECCIÓN DEFINITIVA DE ZONA HORARIA
 
 const API_URL = 'https://app-horario-agenda.onrender.com/api';
 let currentlyEditingEventId = null; 
@@ -112,13 +112,7 @@ async function loadUserEvents() {
             events.forEach(event => {
                 const eventEl = document.createElement('div');
                 eventEl.className = 'event-item';
-                
-                // ===================================================
-                // CORRECCIÓN FINAL DE ZONA HORARIA PARA MOSTRAR
-                // ===================================================
-                // Le decimos a new Date que interprete la fecha como UTC para que no la ajuste
-                const eventDate = new Date(event.fecha_hora_inicio.replace('Z', '')); 
-
+                const eventDate = new Date(event.fecha_hora_inicio);
                 eventEl.innerHTML = `
                     <div class="event-info"><h3>${event.titulo}</h3><p>${eventDate.toLocaleString('es-ES', { dateStyle: 'long', timeStyle: 'short' })}</p></div>
                     <div class="event-actions"><button class="edit-btn" data-id="${event.id}">Editar</button><button class="delete-btn" data-id="${event.id}">Eliminar</button></div>`;
@@ -162,6 +156,9 @@ async function handleDeleteEvent(eventId) {
     } catch (error) { alert('No se pudo eliminar el evento.'); }
 }
 
+// ===================================================
+// FUNCIÓN DE EDICIÓN CON CORRECCIÓN DEFINITIVA DE ZONA HORARIA
+// ===================================================
 function handleEditEvent(eventId) {
     const eventToEdit = window.userEvents.find(e => e.id == eventId);
     if (!eventToEdit) return;
@@ -169,8 +166,19 @@ function handleEditEvent(eventId) {
     document.getElementById('eventTitle').value = eventToEdit.titulo;
 
     const eventDate = new Date(eventToEdit.fecha_hora_inicio);
-    const localDate = new Date(eventDate.getTime() - (eventDate.getTimezoneOffset() * 60000));
-    document.getElementById('eventDateTime').value = localDate.toISOString().slice(0, 16);
+    
+    // 1. Obtenemos los componentes de la fecha en la zona horaria local del navegador
+    const year = eventDate.getFullYear();
+    const month = String(eventDate.getMonth() + 1).padStart(2, '0'); // +1 porque los meses empiezan en 0 (Enero=0)
+    const day = String(eventDate.getDate()).padStart(2, '0');
+    const hours = String(eventDate.getHours()).padStart(2, '0');
+    const minutes = String(eventDate.getMinutes()).padStart(2, '0');
+
+    // 2. Construimos el string en el formato exacto que necesita el input 'datetime-local' (YYYY-MM-DDTHH:mm)
+    const localDateTimeString = `${year}-${month}-${day}T${hours}:${minutes}`;
+    
+    // 3. Asignamos el string formateado directamente al valor del input
+    document.getElementById('eventDateTime').value = localDateTimeString;
 
     document.querySelector('#eventForm button').textContent = 'Actualizar Evento';
     currentlyEditingEventId = eventId;
@@ -185,7 +193,6 @@ function resetEventForm() {
 
 // --- LÓGICA DE HORARIO ---
 async function loadUserSchedule() {
-    // ... (El resto del código no cambia)
     const token = localStorage.getItem('token');
     const scheduleGrid = document.getElementById('scheduleGrid');
     scheduleGrid.innerHTML = 'Cargando horario...';
@@ -281,7 +288,7 @@ async function askForNotificationPermission() {
     try {
         const permissionResult = await Notification.requestPermission();
         if (permissionResult !== 'granted') {
-            alert('Has denegado los permisos de notificación.');
+            alert('Has denigado los permisos de notificación.');
             return;
         }
         const swRegistration = await navigator.serviceWorker.ready;
