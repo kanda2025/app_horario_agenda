@@ -1,4 +1,4 @@
-// frontend/app.js - VERSIÓN FINAL CON CORRECCIÓN DEFINITIVA DE ZONA HORARIA
+// frontend/app.js - VERSIÓN FINAL CON DATE-FNS PARA MANEJAR FECHAS
 
 const API_URL = 'https://app-horario-agenda.onrender.com/api';
 let currentlyEditingEventId = null; 
@@ -109,15 +109,17 @@ async function loadUserEvents() {
         if (events.length === 0) {
             eventListDiv.innerHTML = '<p>No tienes eventos programados.</p>';
         } else {
+            events.sort((a, b) => new Date(a.fecha_hora_inicio) - new Date(b.fecha_hora_inicio));
             events.forEach(event => {
                 const eventEl = document.createElement('div');
                 eventEl.className = 'event-item';
                 
-                // --- CORRECCIÓN #1 PARA MOSTRAR LA HORA ---
-                const eventDate = new Date(event.fecha_hora_inicio);
+                // LÓGICA DE FECHAS CON DATE-FNS
+                const eventDate = dateFns.parse(event.fecha_hora_inicio);
+                const formattedDate = dateFns.format(eventDate, "d 'de' MMMM 'de' yyyy, HH:mm", { locale: dateFns.locale.es });
 
                 eventEl.innerHTML = `
-                    <div class="event-info"><h3>${event.titulo}</h3><p>${eventDate.toLocaleString('es-ES', { dateStyle: 'long', timeStyle: 'short' })}</p></div>
+                    <div class="event-info"><h3>${event.titulo}</h3><p>${formattedDate}</p></div>
                     <div class="event-actions"><button class="edit-btn" data-id="${event.id}">Editar</button><button class="delete-btn" data-id="${event.id}">Eliminar</button></div>`;
                 eventListDiv.appendChild(eventEl);
             });
@@ -164,17 +166,11 @@ function handleEditEvent(eventId) {
     if (!eventToEdit) return;
 
     document.getElementById('eventTitle').value = eventToEdit.titulo;
-
-    // --- CORRECCIÓN #2 DEFINITIVA PARA EDITAR LA HORA ---
-    const eventDate = new Date(eventToEdit.fecha_hora_inicio);
-    const year = eventDate.getFullYear();
-    const month = String(eventDate.getMonth() + 1).padStart(2, '0');
-    const day = String(eventDate.getDate()).padStart(2, '0');
-    const hours = String(eventDate.getHours()).padStart(2, '0');
-    const minutes = String(eventDate.getMinutes()).padStart(2, '0');
-    const localDateTimeString = `${year}-${month}-${day}T${hours}:${minutes}`;
-    document.getElementById('eventDateTime').value = localDateTimeString;
-    // --- FIN DE LA CORRECCIÓN ---
+    
+    // LÓGICA DE FECHAS CON DATE-FNS
+    const eventDate = dateFns.parse(eventToEdit.fecha_hora_inicio);
+    const formattedForInput = dateFns.format(eventDate, "YYYY-MM-DDTHH:mm");
+    document.getElementById('eventDateTime').value = formattedForInput;
 
     document.querySelector('#eventForm button').textContent = 'Actualizar Evento';
     currentlyEditingEventId = eventId;
