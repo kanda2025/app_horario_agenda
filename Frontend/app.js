@@ -1,4 +1,4 @@
-// frontend/app.js - VERSIÓN ESTABLE (CRUD Completo + Notificaciones v1)
+// frontend/app.js - VERSIÓN CON AUTO-REGISTRO
 
 const API_URL = 'https://app-horario-agenda.onrender.com/api';
 let currentlyEditingEventId = null; 
@@ -17,9 +17,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (loginForm) {
         loginForm.addEventListener('submit', handleLogin);
     }
+
+    // ===================================================
+    // NUEVO: AÑADIMOS EL LISTENER PARA EL FORMULARIO DE REGISTRO
+    // ===================================================
+    const registerForm = document.getElementById('registerForm');
+    if (registerForm) {
+        registerForm.addEventListener('submit', handleRegister);
+    }
 });
 
 async function handleLogin(event) {
+    // ... (Esta función no cambia)
     event.preventDefault();
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
@@ -39,7 +48,48 @@ async function handleLogin(event) {
     }
 }
 
+// ===================================================
+// NUEVO: AÑADIMOS LA FUNCIÓN COMPLETA PARA EL REGISTRO
+// ===================================================
+async function handleRegister(event) {
+    event.preventDefault();
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const messageP = document.getElementById('registerMessage');
+    const errorP = document.getElementById('registerError');
+
+    messageP.textContent = '';
+    errorP.textContent = '';
+
+    try {
+        const response = await fetch(`${API_URL}/auth/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'No se pudo completar el registro.');
+        }
+
+        document.getElementById('registerForm').reset();
+        messageP.textContent = '¡Cuenta creada con éxito! Serás redirigido para iniciar sesión en 3 segundos...';
+        messageP.style.color = 'green';
+        
+        // Esperar 3 segundos y redirigir al login
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 3000);
+
+    } catch (error) {
+        errorP.textContent = error.message;
+    }
+}
+
+
 function loadDashboard() {
+    // ... (Esta función no cambia)
     document.getElementById('logoutButton').addEventListener('click', handleLogout);
     document.getElementById('eventForm').addEventListener('submit', handleEventFormSubmit);
     document.getElementById('classForm').addEventListener('submit', handleClassFormSubmit); 
@@ -51,11 +101,13 @@ function loadDashboard() {
 }
 
 function handleLogout() {
+    // ... (Esta función no cambia)
     localStorage.removeItem('token');
     window.location.href = 'index.html';
 }
 
 // --- LÓGICA DE EVENTOS (Agenda) ---
+// (Toda la sección de Eventos y Horario se mantiene exactamente igual, la incluyo para que el archivo esté completo)
 async function loadUserEvents() {
     const token = localStorage.getItem('token');
     const eventListDiv = document.getElementById('eventList');
@@ -126,8 +178,6 @@ function resetEventForm() {
     document.querySelector('#eventForm button').textContent = 'Guardar Evento';
     currentlyEditingEventId = null;
 }
-
-// --- LÓGICA DE HORARIO ---
 async function loadUserSchedule() {
     const token = localStorage.getItem('token');
     const scheduleGrid = document.getElementById('scheduleGrid');
@@ -211,20 +261,15 @@ function resetClassForm() {
     document.querySelector('#classForm button').textContent = 'Añadir Clase';
     currentlyEditingClassId = null;
 }
-
-// --- LÓGICA DE NOTIFICACIONES PUSH (Versión Sencilla) ---
-
 function setupNotifications() {
     const enableNotificationsButton = document.getElementById('enableNotifications');
     enableNotificationsButton.addEventListener('click', askForNotificationPermission);
-
     if ('serviceWorker' in navigator && 'PushManager' in window) {
         navigator.serviceWorker.register('sw.js')
             .then(() => console.log('Service Worker registrado con éxito.'))
             .catch(error => console.error('Error al registrar el Service Worker:', error));
     }
 }
-
 async function askForNotificationPermission() {
     try {
         const permissionResult = await Notification.requestPermission();
@@ -247,7 +292,6 @@ async function askForNotificationPermission() {
         alert('Hubo un error al activar las notificaciones.');
     }
 }
-
 async function sendSubscriptionToBackend(subscription) {
     const token = localStorage.getItem('token');
     await fetch(`${API_URL}/notifications/subscribe`, {
@@ -256,10 +300,7 @@ async function sendSubscriptionToBackend(subscription) {
         body: JSON.stringify(subscription)
     });
 }
-
-// ¡¡¡ACCIÓN REQUERIDA!!! - Pega tu clave pública aquí
 const VAPID_PUBLIC_KEY = "BFUPPUWy929Q6kh2zeEBj5n77tutwozx3cuXm03XzhbjwLpTywhyVmuaCZ9HoOU7Gpglf24DKfQblfSOLLkfoKE";
-
 function urlBase64ToUint8Array(base64String) {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
     const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');

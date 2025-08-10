@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crea tu Cuenta</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Crea tu Cuenta de Horario</h1>
+        <form id="registerForm">
+            <input type="email" id="email" placeholder="Correo Electrónico" required>
+            <input type="password" id="password" placeholder="Contraseña" required>
+            <!-- Opcional: Añadir un campo para confirmar contraseña -->
+            <!-- <input type="password" id="confirmPassword" placeholder="Confirmar Contraseña" required> -->
+            <button type="submit">Registrarse</button>
+        </form>
+        <p id="registerMessage" class="message"></p>
+        <p id="registerError" class="error"></p>
+        <p>¿Ya tienes una cuenta? <a href="index.html">Inicia Sesión</a></p>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
