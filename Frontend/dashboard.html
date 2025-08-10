@@ -14,28 +14,17 @@
         </header>
 
         <main>
-            <!-- SECCIÓN DEL HORARIO SEMANAL -->
             <section class="schedule-section">
                 <h2>Mi Horario Semanal</h2>
-                <div id="scheduleGrid" class="schedule-grid">
-                    <!-- El horario se generará aquí con JavaScript -->
-                </div>
+                <div id="scheduleGrid" class="schedule-grid"></div>
             </section>
-
-            <!-- FORMULARIO PARA AÑADIR CLASE -->
             <section class="form-section">
                 <h2>Añadir Clase al Horario</h2>
                 <form id="classForm">
                     <input type="text" id="className" placeholder="Nombre de la materia" required>
                     <select id="classDay" required>
                         <option value="" disabled selected>Selecciona un día</option>
-                        <option value="1">Lunes</option>
-                        <option value="2">Martes</option>
-                        <option value="3">Miércoles</option>
-                        <option value="4">Jueves</option>
-                        <option value="5">Viernes</option>
-                        <option value="6">Sábado</option>
-                        <option value="7">Domingo</option>
+                        <option value="1">Lunes</option><option value="2">Martes</option><option value="3">Miércoles</option><option value="4">Jueves</option><option value="5">Viernes</option><option value="6">Sábado</option><option value="7">Domingo</option>
                     </select>
                     <div class="time-inputs">
                         <input type="time" id="classStartTime" required title="Hora de inicio">
@@ -44,10 +33,7 @@
                     <button type="submit">Añadir Clase</button>
                 </form>
             </section>
-
             <hr>
-
-            <!-- SECCIÓN DE EVENTOS/AGENDA -->
             <section class="form-section">
                 <h2>Añadir Nuevo Evento (Agenda)</h2>
                 <form id="eventForm">
@@ -56,28 +42,17 @@
                     <button type="submit">Guardar Evento</button>
                 </form>
             </section>
-
             <section class="events-section">
                 <h2>Mis Próximos Eventos</h2>
-                <div id="eventList">
-                    <!-- Los eventos se cargarán aquí con JavaScript -->
-                </div>
+                <div id="eventList"></div>
             </section>
-
             <hr>
-
             <section class="notifications-section">
                 <h2>Notificaciones</h2>
                 <button id="enableNotifications">Activar Notificaciones Push</button>
             </section>
         </main>
     </div>
-
-    <!-- =================================================== -->
-    <!-- SCRIPTS CARGADOS AL FINAL DEL BODY PARA MEJOR RENDIMIENTO -->
-    <!-- =================================================== -->
-    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.28.0/cdn.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.28.0/locale/es/cdn.min.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

@@ -1,5 +1,3 @@
-// frontend/app.js - VERSIÓN FINAL CON DATE-FNS v2 CORRECTA
-
 const API_URL = 'https://app-horario-agenda.onrender.com/api';
 let currentlyEditingEventId = null; 
 let currentlyEditingClassId = null;
@@ -7,21 +5,13 @@ let currentlyEditingClassId = null;
 document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('token');
     if (document.body.id === 'dashboard') {
-        if (!token) {
-            window.location.href = 'index.html';
-            return;
-        }
+        if (!token) { window.location.href = 'index.html'; return; }
         loadDashboard();
     }
     const loginForm = document.getElementById('loginForm');
-    if (loginForm) {
-        loginForm.addEventListener('submit', handleLogin);
-    }
-
+    if (loginForm) { loginForm.addEventListener('submit', handleLogin); }
     const registerForm = document.getElementById('registerForm');
-    if (registerForm) {
-        registerForm.addEventListener('submit', handleRegister);
-    }
+    if (registerForm) { registerForm.addEventListener('submit', handleRegister); }
 });
 
 async function handleLogin(event) {
@@ -30,18 +20,12 @@ async function handleLogin(event) {
     const password = document.getElementById('password').value;
     const errorP = document.getElementById('loginError');
     try {
-        const response = await fetch(`${API_URL}/auth/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-        });
+        const response = await fetch(`${API_URL}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
         if (!response.ok) throw new Error('Email o contraseña incorrectos.');
         const data = await response.json();
         localStorage.setItem('token', data.token);
         window.location.href = 'dashboard.html';
-    } catch (error) {
-        errorP.textContent = error.message;
-    }
+    } catch (error) { errorP.textContent = error.message; }
 }
 
 async function handleRegister(event) {
@@ -50,33 +34,15 @@ async function handleRegister(event) {
     const password = document.getElementById('password').value;
     const messageP = document.getElementById('registerMessage');
     const errorP = document.getElementById('registerError');
-
-    messageP.textContent = '';
-    errorP.textContent = '';
-
+    messageP.textContent = ''; errorP.textContent = '';
     try {
-        const response = await fetch(`${API_URL}/auth/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'No se pudo completar el registro.');
-        }
-
+        const response = await fetch(`${API_URL}/auth/register`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
+        if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.message || 'No se pudo completar el registro.'); }
         document.getElementById('registerForm').reset();
         messageP.textContent = '¡Cuenta creada con éxito! Serás redirigido para iniciar sesión en 3 segundos...';
         messageP.style.color = 'green';
-        
-        setTimeout(() => {
-            window.location.href = 'index.html';
-        }, 3000);
-
-    } catch (error) {
-        errorP.textContent = error.message;
-    }
+        setTimeout(() => { window.location.href = 'index.html'; }, 3000);
+    } catch (error) { errorP.textContent = error.message; }
 }
 
 function loadDashboard() {
@@ -113,15 +79,10 @@ async function loadUserEvents() {
             events.forEach(event => {
                 const eventEl = document.createElement('div');
                 eventEl.className = 'event-item';
-                
-                // ===================================================
-                // CORRECCIÓN FINAL USANDO parseISO
-                // ===================================================
-                const eventDate = dateFns.parseISO(event.fecha_hora_inicio);
-                const formattedDate = dateFns.format(eventDate, "d 'de' MMMM 'de' yyyy, HH:mm", { locale: dateFns.locale.es });
-
+                const eventDate = new Date(event.fecha_hora_inicio);
+                const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
                 eventEl.innerHTML = `
-                    <div class="event-info"><h3>${event.titulo}</h3><p>${formattedDate}</p></div>
+                    <div class="event-info"><h3>${event.titulo}</h3><p>${eventDate.toLocaleString('es-ES', options)}</p></div>
                     <div class="event-actions"><button class="edit-btn" data-id="${event.id}">Editar</button><button class="delete-btn" data-id="${event.id}">Eliminar</button></div>`;
                 eventListDiv.appendChild(eventEl);
             });
@@ -131,7 +92,6 @@ async function loadUserEvents() {
         eventListDiv.innerHTML = '<p>No se pudieron cargar los eventos.</p>'; 
     }
 }
-
 async function handleEventFormSubmit(event) {
     event.preventDefault();
     const token = localStorage.getItem('token');
@@ -149,7 +109,6 @@ async function handleEventFormSubmit(event) {
         loadUserEvents();
     } catch (error) { alert(error.message); }
 }
-
 function handleListClick(event) {
     const target = event.target.closest('button');
     if(!target) return;
@@ -157,7 +116,6 @@ function handleListClick(event) {
     if (target.classList.contains('delete-btn')) if (confirm('¿Seguro que quieres eliminar este evento?')) handleDeleteEvent(eventId);
     if (target.classList.contains('edit-btn')) handleEditEvent(eventId);
 }
-
 async function handleDeleteEvent(eventId) {
     const token = localStorage.getItem('token');
     try {
@@ -165,26 +123,17 @@ async function handleDeleteEvent(eventId) {
         loadUserEvents();
     } catch (error) { alert('No se pudo eliminar el evento.'); }
 }
-
 function handleEditEvent(eventId) {
     const eventToEdit = window.userEvents.find(e => e.id == eventId);
     if (!eventToEdit) return;
-
     document.getElementById('eventTitle').value = eventToEdit.titulo;
-    
-    // ===================================================
-    // CORRECCIÓN FINAL USANDO parseISO
-    // ===================================================
-    const eventDate = dateFns.parseISO(eventToEdit.fecha_hora_inicio);
-    const formattedForInput = dateFns.format(eventDate, "yyyy-MM-dd'T'HH:mm");
-    
-    document.getElementById('eventDateTime').value = formattedForInput;
-
+    const eventDate = new Date(eventToEdit.fecha_hora_inicio);
+    const localDate = new Date(eventDate.getTime() - (eventDate.getTimezoneOffset() * 60000));
+    document.getElementById('eventDateTime').value = localDate.toISOString().slice(0, 16);
     document.querySelector('#eventForm button').textContent = 'Actualizar Evento';
     currentlyEditingEventId = eventId;
     document.getElementById('eventForm').scrollIntoView({ behavior: 'smooth' });
 }
-
 function resetEventForm() {
     document.getElementById('eventForm').reset();
     document.querySelector('#eventForm button').textContent = 'Guardar Evento';
