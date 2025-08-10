@@ -121,6 +121,7 @@ async function loadUserEvents() {
         }
     } catch (error) { eventListDiv.innerHTML = '<p>No se pudieron cargar los eventos.</p>'; }
 }
+
 async function handleEventFormSubmit(event) {
     event.preventDefault();
     const token = localStorage.getItem('token');
@@ -138,6 +139,7 @@ async function handleEventFormSubmit(event) {
         loadUserEvents();
     } catch (error) { alert(error.message); }
 }
+
 function handleListClick(event) {
     const target = event.target.closest('button');
     if(!target) return;
@@ -145,6 +147,7 @@ function handleListClick(event) {
     if (target.classList.contains('delete-btn')) if (confirm('¿Seguro que quieres eliminar este evento?')) handleDeleteEvent(eventId);
     if (target.classList.contains('edit-btn')) handleEditEvent(eventId);
 }
+
 async function handleDeleteEvent(eventId) {
     const token = localStorage.getItem('token');
     try {
@@ -152,6 +155,7 @@ async function handleDeleteEvent(eventId) {
         loadUserEvents();
     } catch (error) { alert('No se pudo eliminar el evento.'); }
 }
+
 function handleEditEvent(eventId) {
     const eventToEdit = window.userEvents.find(e => e.id == eventId);
     if (!eventToEdit) return;
@@ -166,6 +170,7 @@ function handleEditEvent(eventId) {
     currentlyEditingEventId = eventId;
     document.getElementById('eventForm').scrollIntoView({ behavior: 'smooth' });
 }
+
 function resetEventForm() {
     document.getElementById('eventForm').reset();
     document.querySelector('#eventForm button').textContent = 'Guardar Evento';
@@ -295,7 +300,7 @@ async function sendSubscriptionToBackend(subscription) {
         body: JSON.stringify(subscription)
     });
 }
-const VAPID_PUBLIC_KEY = "BFUPPUWy929Q6kh2zeEBj5n77tutwozx3cuXm03XzhbjwLpTywhyVmuaCZ9HoOU7Gpglf24DKfQblfSOLLkfoKE";
+const VAPID_PUBLIC_KEY = "BFUPPUWy929Q6kh2zeEBj5n77tutwozx3cuXm03XzhbjwLpTywhyVmuaCZ9HoOU7Gpglf24DKfQblfSOLLkfoKE"; // <-- ¡¡¡NO OLVIDES REEMPLAZAR ESTO!!!
 function urlBase64ToUint8Array(base64String) {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
     const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
