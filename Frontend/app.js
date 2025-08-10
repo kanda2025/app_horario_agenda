@@ -112,7 +112,10 @@ async function loadUserEvents() {
             events.forEach(event => {
                 const eventEl = document.createElement('div');
                 eventEl.className = 'event-item';
+                
+                // --- CORRECCIÓN #1 PARA MOSTRAR LA HORA ---
                 const eventDate = new Date(event.fecha_hora_inicio);
+
                 eventEl.innerHTML = `
                     <div class="event-info"><h3>${event.titulo}</h3><p>${eventDate.toLocaleString('es-ES', { dateStyle: 'long', timeStyle: 'short' })}</p></div>
                     <div class="event-actions"><button class="edit-btn" data-id="${event.id}">Editar</button><button class="delete-btn" data-id="${event.id}">Eliminar</button></div>`;
@@ -156,29 +159,22 @@ async function handleDeleteEvent(eventId) {
     } catch (error) { alert('No se pudo eliminar el evento.'); }
 }
 
-// ===================================================
-// FUNCIÓN DE EDICIÓN CON CORRECCIÓN DEFINITIVA DE ZONA HORARIA
-// ===================================================
 function handleEditEvent(eventId) {
     const eventToEdit = window.userEvents.find(e => e.id == eventId);
     if (!eventToEdit) return;
 
     document.getElementById('eventTitle').value = eventToEdit.titulo;
 
+    // --- CORRECCIÓN #2 DEFINITIVA PARA EDITAR LA HORA ---
     const eventDate = new Date(eventToEdit.fecha_hora_inicio);
-    
-    // 1. Obtenemos los componentes de la fecha en la zona horaria local del navegador
     const year = eventDate.getFullYear();
-    const month = String(eventDate.getMonth() + 1).padStart(2, '0'); // +1 porque los meses empiezan en 0 (Enero=0)
+    const month = String(eventDate.getMonth() + 1).padStart(2, '0');
     const day = String(eventDate.getDate()).padStart(2, '0');
     const hours = String(eventDate.getHours()).padStart(2, '0');
     const minutes = String(eventDate.getMinutes()).padStart(2, '0');
-
-    // 2. Construimos el string en el formato exacto que necesita el input 'datetime-local' (YYYY-MM-DDTHH:mm)
     const localDateTimeString = `${year}-${month}-${day}T${hours}:${minutes}`;
-    
-    // 3. Asignamos el string formateado directamente al valor del input
     document.getElementById('eventDateTime').value = localDateTimeString;
+    // --- FIN DE LA CORRECCIÓN ---
 
     document.querySelector('#eventForm button').textContent = 'Actualizar Evento';
     currentlyEditingEventId = eventId;
@@ -288,7 +284,7 @@ async function askForNotificationPermission() {
     try {
         const permissionResult = await Notification.requestPermission();
         if (permissionResult !== 'granted') {
-            alert('Has denigado los permisos de notificación.');
+            alert('Has denegado los permisos de notificación.');
             return;
         }
         const swRegistration = await navigator.serviceWorker.ready;
