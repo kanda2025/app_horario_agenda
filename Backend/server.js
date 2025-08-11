@@ -1,5 +1,5 @@
 // FORZAR REDESPLIEGUE FINAL: 11-08-2025
-// backend/server.js - VERSIÓN FINAL CON CORRECCIÓN EN CRON JOB
+// backend/server.js - VERSIÓN FINAL CON CORRECCIÓN DEFINITIVA EN CRON JOB
 
 const express = require('express');
 const cors = require('cors');
@@ -185,14 +185,20 @@ app.listen(PORT, () => {
     });
 });
 
+// ===================================================
+// FUNCIÓN DE NOTIFICACIONES CORREGIDA CON NOW() DE POSTGRESQL
+// ===================================================
 async function checkEventsForNotifications() {
     try {
-        const now = new Date();
-        const fiveMinutesFromNow = new Date(now.getTime() + 5 * 60000);
+        // Esta consulta ahora usa las funciones de tiempo de la propia base de datos
         const result = await db.query(
-            `SELECT e.id, e.titulo, u.push_subscription FROM eventos e JOIN usuarios u ON e.usuario_id = u.id WHERE e.fecha_hora_inicio >= $1 AND e.fecha_hora_inicio <= $2 AND u.push_subscription IS NOT NULL`,
-            [now, fiveMinutesFromNow]
+            `SELECT e.id, e.titulo, u.push_subscription 
+             FROM eventos e JOIN usuarios u ON e.usuario_id = u.id 
+             WHERE e.fecha_hora_inicio >= NOW() 
+               AND e.fecha_hora_inicio <= NOW() + interval '5 minutes' 
+               AND u.push_subscription IS NOT NULL`
         );
+
         if (result.rows.length > 0) {
             console.log(`CRON: Encontrados ${result.rows.length} eventos para notificar.`);
             for (const event of result.rows) {
