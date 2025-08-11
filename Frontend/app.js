@@ -1,4 +1,4 @@
-// frontend/app.js - VERSIÓN FINAL CON CORRECCIÓN DEFINITIVA DE ZONA HORARIA v4
+// frontend/app.js - VERSIÓN FINAL CON FORMATO 12H
 
 const API_URL = 'https://app-horario-agenda.onrender.com/api';
 let currentlyEditingEventId = null; 
@@ -83,7 +83,20 @@ async function loadUserEvents() {
                 const eventEl = document.createElement('div');
                 eventEl.className = 'event-item';
                 const eventDate = new Date(event.fecha_hora_inicio);
-                const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'UTC' };
+                
+                // ===================================================
+                // VERSIÓN FINAL CON FORMATO 12 HORAS (am/pm)
+                // ===================================================
+                const options = { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric', 
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    timeZone: 'UTC',
+                    hour12: true // La clave para el formato AM/PM
+                };
+                
                 eventEl.innerHTML = `
                     <div class="event-info"><h3>${event.titulo}</h3><p>${eventDate.toLocaleString('es-ES', options)}</p></div>
                     <div class="event-actions"><button class="edit-btn" data-id="${event.id}">Editar</button><button class="delete-btn" data-id="${event.id}">Eliminar</button></div>`;
@@ -130,21 +143,12 @@ async function handleDeleteEvent(eventId) {
     } catch (error) { alert('No se pudo eliminar el evento.'); }
 }
 
-// ===================================================
-// FUNCIÓN DE EDICIÓN CON LA SOLUCIÓN MÁS SIMPLE Y ROBUSTA
-// ===================================================
 function handleEditEvent(eventId) {
     const eventToEdit = window.userEvents.find(e => e.id == eventId);
     if (!eventToEdit) return;
-
     document.getElementById('eventTitle').value = eventToEdit.titulo;
-
-    // La fecha de la base de datos viene en formato ISO (ej: "2025-08-11T08:00:00.000Z").
-    // El input 'datetime-local' necesita el formato "YYYY-MM-DDTHH:mm".
-    // Simplemente cortamos el string para que coincida, ignorando segundos y la 'Z'.
     const formattedForInput = eventToEdit.fecha_hora_inicio.slice(0, 16);
     document.getElementById('eventDateTime').value = formattedForInput;
-
     document.querySelector('#eventForm button').textContent = 'Actualizar Evento';
     currentlyEditingEventId = eventId;
     document.getElementById('eventForm').scrollIntoView({ behavior: 'smooth' });
@@ -157,7 +161,6 @@ function resetEventForm() {
 }
 
 // --- LÓGICA DE HORARIO ---
-// (El resto del código no tiene cambios)
 async function loadUserSchedule() {
     const token = localStorage.getItem('token');
     const scheduleGrid = document.getElementById('scheduleGrid');
