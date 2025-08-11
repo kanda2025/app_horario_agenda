@@ -1,4 +1,5 @@
-// backend/server.js - VERSIÓN FINAL DEFINITIVA (11-08-2025)
+// FORZAR REDESPLIEGUE FINAL: 11-08-2025 v2
+// backend/server.js - VERSIÓN FINAL CON CORRECCIÓN DE PUERTO PARA RENDER
 
 const express = require('express');
 const cors = require('cors');
@@ -12,7 +13,7 @@ const db = require('./db');
 const authenticateToken = require('./authMiddleware');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+// Eliminamos la constante PORT de aquí para moverla al final
 
 const vapidKeys = {
     publicKey: process.env.VAPID_PUBLIC_KEY,
@@ -175,7 +176,11 @@ app.post('/api/notifications/subscribe', authenticateToken, async (req, res) => 
     }
 });
 
-// --- INICIO DEL SERVIDOR Y CRON JOB ---
+// ===================================================
+// INICIO DEL SERVIDOR CORREGIDO PARA RENDER
+// ===================================================
+const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, () => {
     console.log(`¡ÉXITO! Servidor corriendo en el puerto ${PORT}`);
     cron.schedule('* * * * *', () => {
@@ -184,9 +189,6 @@ app.listen(PORT, () => {
     });
 });
 
-// ===================================================
-// FUNCIÓN DE NOTIFICACIONES CORREGIDA CON NOW() DE POSTGRESQL
-// ===================================================
 async function checkEventsForNotifications() {
     try {
         const result = await db.query(
