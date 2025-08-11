@@ -1,3 +1,4 @@
+// FORZAR RECONSTRUCCIÓN: 11-08-2025 00:01
 // frontend/app.js - VERSIÓN FINAL CON FORMATO 12H
 
 const API_URL = 'https://app-horario-agenda.onrender.com/api';
@@ -84,9 +85,6 @@ async function loadUserEvents() {
                 eventEl.className = 'event-item';
                 const eventDate = new Date(event.fecha_hora_inicio);
                 
-                // ===================================================
-                // VERSIÓN FINAL CON FORMATO 12 HORAS (am/pm)
-                // ===================================================
                 const options = { 
                     year: 'numeric', 
                     month: 'long', 
@@ -94,7 +92,7 @@ async function loadUserEvents() {
                     hour: '2-digit', 
                     minute: '2-digit', 
                     timeZone: 'UTC',
-                    hour12: true // La clave para el formato AM/PM
+                    hour12: true
                 };
                 
                 eventEl.innerHTML = `
@@ -257,7 +255,7 @@ async function askForNotificationPermission() {
     try {
         const permissionResult = await Notification.requestPermission();
         if (permissionResult !== 'granted') {
-            alert('Has denigado los permisos de notificación.');
+            alert('Has denegado los permisos de notificación.');
             return;
         }
         const swRegistration = await navigator.serviceWorker.ready;
