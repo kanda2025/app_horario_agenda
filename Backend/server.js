@@ -1,5 +1,5 @@
-// FORZAR REDESPLIEGUE FINAL v3
-// backend/server.js - VERSIÓN FINAL CON CORRECCIÓN DEFINITIVA DE GUARDADO DE HORA
+// FORZAR REDESPLIEGUE - VERSIÓN GANADORA
+// backend/server.js - VERSIÓN RESTAURADA A LA QUE FUNCIONABA
 
 const express = require('express');
 const cors = require('cors');
@@ -77,16 +77,11 @@ app.get('/api/eventos', authenticateToken, async (req, res) => {
         res.status(500).json({ message: "Error al obtener los eventos" });
     }
 });
-
 app.post('/api/eventos', authenticateToken, async (req, res) => {
     try {
         const userId = req.user.id;
         const { titulo, fecha_hora_inicio } = req.body;
-        
-        // MENSAJE DE DIAGNÓSTICO
-        console.log(`Guardando evento. Hora recibida del frontend: ${fecha_hora_inicio}`);
-        
-        // CORRECCIÓN FINAL: Pasamos el string directamente, sin "new Date()"
+        // LÓGICA ORIGINAL QUE FUNCIONABA
         const newEvent = await db.query("INSERT INTO eventos (usuario_id, titulo, fecha_hora_inicio) VALUES ($1, $2, $3) RETURNING *", [userId, titulo, fecha_hora_inicio]);
         res.status(201).json(newEvent.rows[0]);
     } catch (error) {
@@ -94,17 +89,12 @@ app.post('/api/eventos', authenticateToken, async (req, res) => {
         res.status(500).json({ message: "Error al crear el evento" });
     }
 });
-
 app.put('/api/eventos/:id', authenticateToken, async (req, res) => {
     try {
         const eventId = req.params.id;
         const userId = req.user.id;
         const { titulo, fecha_hora_inicio } = req.body;
-        
-        // MENSAJE DE DIAGNÓSTICO
-        console.log(`Actualizando evento ${eventId}. Hora recibida del frontend: ${fecha_hora_inicio}`);
-        
-        // CORRECCIÓN FINAL: Pasamos el string directamente, sin "new Date()"
+        // LÓGICA ORIGINAL QUE FUNCIONABA
         const result = await db.query("UPDATE eventos SET titulo = $1, fecha_hora_inicio = $2 WHERE id = $3 AND usuario_id = $4 RETURNING *", [titulo, fecha_hora_inicio, eventId, userId]);
         if (result.rows.length === 0) { return res.status(404).json({ message: "Evento no encontrado o sin permisos." }); }
         res.json(result.rows[0]);
@@ -113,7 +103,6 @@ app.put('/api/eventos/:id', authenticateToken, async (req, res) => {
         res.status(500).json({ message: "Error al actualizar el evento" });
     }
 });
-
 app.delete('/api/eventos/:id', authenticateToken, async (req, res) => {
     try {
         const eventId = req.params.id;
@@ -201,8 +190,12 @@ app.listen(PORT_TO_LISTEN, () => {
 
 async function checkEventsForNotifications() {
     try {
+        // LÓGICA ORIGINAL QUE FUNCIONABA
+        const now = new Date();
+        const fiveMinutesFromNow = new Date(now.getTime() + 5 * 60000);
         const result = await db.query(
-            `SELECT e.id, e.titulo, u.push_subscription FROM eventos e JOIN usuarios u ON e.usuario_id = u.id WHERE e.fecha_hora_inicio >= NOW() AND e.fecha_hora_inicio <= NOW() + interval '5 minutes' AND u.push_subscription IS NOT NULL`
+            `SELECT e.id, e.titulo, u.push_subscription FROM eventos e JOIN usuarios u ON e.usuario_id = u.id WHERE e.fecha_hora_inicio >= $1 AND e.fecha_hora_inicio <= $2 AND u.push_subscription IS NOT NULL`,
+            [now, fiveMinutesFromNow]
         );
 
         if (result.rows.length > 0) {
