@@ -1,3 +1,5 @@
+// frontend/app.js - VERSIÓN FINAL CON CORRECCIÓN DEFINITIVA DE ZONA HORARIA v3
+
 const API_URL = 'https://app-horario-agenda.onrender.com/api';
 let currentlyEditingEventId = null; 
 let currentlyEditingClassId = null;
@@ -10,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const loginForm = document.getElementById('loginForm');
     if (loginForm) { loginForm.addEventListener('submit', handleLogin); }
+
     const registerForm = document.getElementById('registerForm');
     if (registerForm) { registerForm.addEventListener('submit', handleRegister); }
 });
@@ -79,8 +82,20 @@ async function loadUserEvents() {
             events.forEach(event => {
                 const eventEl = document.createElement('div');
                 eventEl.className = 'event-item';
+                
+                // ===================================================
+                // CORRECCIÓN FINAL Y DEFINITIVA DE ZONA HORARIA
+                // ===================================================
                 const eventDate = new Date(event.fecha_hora_inicio);
-                const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+                const options = { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric', 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    timeZone: 'UTC' // Le decimos que formatee la hora como si estuviera en UTC
+                };
+                
                 eventEl.innerHTML = `
                     <div class="event-info"><h3>${event.titulo}</h3><p>${eventDate.toLocaleString('es-ES', options)}</p></div>
                     <div class="event-actions"><button class="edit-btn" data-id="${event.id}">Editar</button><button class="delete-btn" data-id="${event.id}">Eliminar</button></div>`;
@@ -92,6 +107,7 @@ async function loadUserEvents() {
         eventListDiv.innerHTML = '<p>No se pudieron cargar los eventos.</p>'; 
     }
 }
+
 async function handleEventFormSubmit(event) {
     event.preventDefault();
     const token = localStorage.getItem('token');
@@ -109,6 +125,7 @@ async function handleEventFormSubmit(event) {
         loadUserEvents();
     } catch (error) { alert(error.message); }
 }
+
 function handleListClick(event) {
     const target = event.target.closest('button');
     if(!target) return;
@@ -116,6 +133,7 @@ function handleListClick(event) {
     if (target.classList.contains('delete-btn')) if (confirm('¿Seguro que quieres eliminar este evento?')) handleDeleteEvent(eventId);
     if (target.classList.contains('edit-btn')) handleEditEvent(eventId);
 }
+
 async function handleDeleteEvent(eventId) {
     const token = localStorage.getItem('token');
     try {
@@ -123,6 +141,7 @@ async function handleDeleteEvent(eventId) {
         loadUserEvents();
     } catch (error) { alert('No se pudo eliminar el evento.'); }
 }
+
 function handleEditEvent(eventId) {
     const eventToEdit = window.userEvents.find(e => e.id == eventId);
     if (!eventToEdit) return;
@@ -134,6 +153,7 @@ function handleEditEvent(eventId) {
     currentlyEditingEventId = eventId;
     document.getElementById('eventForm').scrollIntoView({ behavior: 'smooth' });
 }
+
 function resetEventForm() {
     document.getElementById('eventForm').reset();
     document.querySelector('#eventForm button').textContent = 'Guardar Evento';
