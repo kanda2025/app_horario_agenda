@@ -1,4 +1,4 @@
-// backend/server.js - VERSIÓN FINAL CON CORRECCIÓN DE SINTAXIS Y CRON JOB
+// backend/server.js - VERSIÓN FINAL (12-08-2025) - Usa NOW() de PostgreSQL para máxima fiabilidad
 
 const express = require('express');
 const cors = require('cors');
@@ -12,7 +12,6 @@ const db = require('./db');
 const authenticateToken = require('./authMiddleware');
 
 const app = express();
-// Definimos PORT aquí UNA SOLA VEZ
 const PORT = process.env.PORT || 3000;
 
 const vapidKeys = {
@@ -81,6 +80,7 @@ app.post('/api/eventos', authenticateToken, async (req, res) => {
     try {
         const userId = req.user.id;
         const { titulo, fecha_hora_inicio } = req.body;
+        // Se pasa el string directamente, PostgreSQL lo manejará
         const newEvent = await db.query("INSERT INTO eventos (usuario_id, titulo, fecha_hora_inicio) VALUES ($1, $2, $3) RETURNING *", [userId, titulo, fecha_hora_inicio]);
         res.status(201).json(newEvent.rows[0]);
     } catch (error) {
@@ -93,6 +93,7 @@ app.put('/api/eventos/:id', authenticateToken, async (req, res) => {
         const eventId = req.params.id;
         const userId = req.user.id;
         const { titulo, fecha_hora_inicio } = req.body;
+        // Se pasa el string directamente
         const result = await db.query("UPDATE eventos SET titulo = $1, fecha_hora_inicio = $2 WHERE id = $3 AND usuario_id = $4 RETURNING *", [titulo, fecha_hora_inicio, eventId, userId]);
         if (result.rows.length === 0) { return res.status(404).json({ message: "Evento no encontrado o sin permisos." }); }
         res.json(result.rows[0]);
@@ -185,6 +186,9 @@ app.listen(PORT, () => {
     });
 });
 
+// ===================================================
+// FUNCIÓN DE NOTIFICACIONES CORREGIDA CON NOW() DE POSTGRESQL
+// ===================================================
 async function checkEventsForNotifications() {
     try {
         const result = await db.query(
