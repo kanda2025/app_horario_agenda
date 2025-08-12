@@ -1,5 +1,4 @@
-// FORZAR REDESPLIEGUE - VERSIÓN GANADORA
-// backend/server.js - VERSIÓN RESTAURADA A LA QUE FUNCIONABA
+// backend/server.js - VERSIÓN FINAL CON CORRECCIÓN DE SINTAXIS Y CRON JOB
 
 const express = require('express');
 const cors = require('cors');
@@ -13,6 +12,7 @@ const db = require('./db');
 const authenticateToken = require('./authMiddleware');
 
 const app = express();
+// Definimos PORT aquí UNA SOLA VEZ
 const PORT = process.env.PORT || 3000;
 
 const vapidKeys = {
@@ -81,7 +81,6 @@ app.post('/api/eventos', authenticateToken, async (req, res) => {
     try {
         const userId = req.user.id;
         const { titulo, fecha_hora_inicio } = req.body;
-        // LÓGICA ORIGINAL QUE FUNCIONABA
         const newEvent = await db.query("INSERT INTO eventos (usuario_id, titulo, fecha_hora_inicio) VALUES ($1, $2, $3) RETURNING *", [userId, titulo, fecha_hora_inicio]);
         res.status(201).json(newEvent.rows[0]);
     } catch (error) {
@@ -94,7 +93,6 @@ app.put('/api/eventos/:id', authenticateToken, async (req, res) => {
         const eventId = req.params.id;
         const userId = req.user.id;
         const { titulo, fecha_hora_inicio } = req.body;
-        // LÓGICA ORIGINAL QUE FUNCIONABA
         const result = await db.query("UPDATE eventos SET titulo = $1, fecha_hora_inicio = $2 WHERE id = $3 AND usuario_id = $4 RETURNING *", [titulo, fecha_hora_inicio, eventId, userId]);
         if (result.rows.length === 0) { return res.status(404).json({ message: "Evento no encontrado o sin permisos." }); }
         res.json(result.rows[0]);
@@ -179,9 +177,8 @@ app.post('/api/notifications/subscribe', authenticateToken, async (req, res) => 
 });
 
 // --- INICIO DEL SERVIDOR Y CRON JOB ---
-const PORT_TO_LISTEN = process.env.PORT || 3000;
-app.listen(PORT_TO_LISTEN, () => {
-    console.log(`¡ÉXITO! Servidor corriendo en el puerto ${PORT_TO_LISTEN}`);
+app.listen(PORT, () => {
+    console.log(`¡ÉXITO! Servidor corriendo en el puerto ${PORT}`);
     cron.schedule('* * * * *', () => {
         console.log('CRON: Verificando eventos para notificar...');
         checkEventsForNotifications();
@@ -190,12 +187,12 @@ app.listen(PORT_TO_LISTEN, () => {
 
 async function checkEventsForNotifications() {
     try {
-        // LÓGICA ORIGINAL QUE FUNCIONABA
-        const now = new Date();
-        const fiveMinutesFromNow = new Date(now.getTime() + 5 * 60000);
         const result = await db.query(
-            `SELECT e.id, e.titulo, u.push_subscription FROM eventos e JOIN usuarios u ON e.usuario_id = u.id WHERE e.fecha_hora_inicio >= $1 AND e.fecha_hora_inicio <= $2 AND u.push_subscription IS NOT NULL`,
-            [now, fiveMinutesFromNow]
+            `SELECT e.id, e.titulo, u.push_subscription 
+             FROM eventos e JOIN usuarios u ON e.usuario_id = u.id 
+             WHERE e.fecha_hora_inicio >= NOW() 
+               AND e.fecha_hora_inicio <= NOW() + interval '5 minutes' 
+               AND u.push_subscription IS NOT NULL`
         );
 
         if (result.rows.length > 0) {
